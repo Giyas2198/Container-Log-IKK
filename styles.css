@@ -1,0 +1,303 @@
+/* styles.css - Versi Dirapikan */
+:root {
+    --primary-color: #007bff; /* Biru Primer Baru */
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --bg-light: #f8f9fa; /* Latar belakang lebih terang */
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Bayangan yang lebih halus */
+    --border-radius: 8px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; /* Ganti font ke yang lebih modern */
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light); 
+    overflow-x: hidden; /* JAGA-JAGA: Cegah scroll horizontal */
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* --- Layout Grid Utama: Diubah ke 1:3 (Input:Visualisasi) dan Max Width lebih kecil --- */
+#main-content {
+    display: grid;
+    /* DARI: 1fr 2.5fr -> MENJADI: 1fr 3fr (Input lebih kecil, Visualisasi lebih besar) */
+    grid-template-columns: 1fr 3fr; 
+    gap: 20px; /* Jarak antar kolom dikurangi */
+    padding: 20px; /* Padding dikurangi */
+    /* DARI: 1600px -> MENJADI: 1400px (Agar lebih muat di layar standar) */
+    max-width: 1400px; 
+    margin: auto;
+}
+
+#input-section {
+    grid-column: 1 / 2;
+    padding: 20px; /* Padding dikurangi */
+    background-color: white;
+    border-radius: var(--border-radius); 
+    box-shadow: var(--box-shadow);
+    height: fit-content;
+}
+
+#visualization-section {
+    grid-column: 2 / 3;
+    padding: 20px; /* Padding dikurangi */
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+h1, h3 {
+    color: #343a40; /* Warna judul lebih gelap */
+    margin-top: 0;
+}
+h3 {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* --- Styling Visualisasi 3D --- */
+#visualization-container {
+    width: 90%;
+    /* Menggunakan tinggi relatif terhadap viewport (vh) */
+    height: 75vh; 
+    background-color: #f0f4f7;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+/* --- Styling Input Form --- */
+input[type="text"], input[type="number"], textarea, select {
+    padding: 8px; /* Padding input dikurangi */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin-bottom: 8px; /* Margin dikurangi */
+    box-sizing: border-box; 
+    font-size: 13px; /* Ukuran font dikurangi sedikit */
+    transition: border-color 0.3s;
+}
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+input[type="number"] {
+    -moz-appearance: textfield; 
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: default;
+}
+select {
+    width: 100%;
+    background-color: white;
+}
+.note {
+    margin-top: 10px;
+    font-style: italic;
+    color: var(--secondary-color);
+    font-size: 0.85em; /* Ukuran font note dikurangi */
+}
+
+/* --- Styling Daftar Material --- */
+#material-list {
+    margin-bottom: 15px;
+}
+
+.material-item {
+    display: flex;
+    gap: 6px; /* Jarak antar item dikurangi */
+    align-items: center;
+    padding: 6px 8px; /* Padding dikurangi */
+    border-radius: 4px;
+    margin-bottom: 4px; /* Jarak antar baris dikurangi */
+}
+.material-item.header-row {
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #ced4da;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    font-size: 13px; /* Ukuran font header dikurangi */
+}
+
+/* Agar input dan div dimensi/berat rata */
+.material-item > * {
+    margin-bottom: 0 !important; 
+}
+
+/* LEBAR KOLOM DIATUR ULANG AGAR MUAT DI KOLOM INPUT YANG LEBIH KECIL */
+.material-item input[type="text"]:first-child { flex-grow: 1.5; } /* Material ID */
+.material-item input[type="text"]:nth-child(2) { flex-grow: 2.5; } /* Deskripsi */
+.material-item input[type="number"] {
+    flex-grow: 0.4; /* Qty */
+    text-align: center;
+    max-width: 50px; /* Max width Qty dikurangi */
+}
+
+/* Kolom Dimensi dan Berat (Div Display) */
+.material-item .dim-display, .material-item .weight-display {
+    flex: 0 0 85px; /* Lebar div display dikurangi */
+    text-align: center;
+    padding: 5px 0; /* Padding dikurangi */
+    border-radius: 4px;
+    font-size: 11px; /* Ukuran font dikurangi */
+    border: 1px solid #e9ecef;
+    white-space: nowrap; /* Pastikan teks tidak patah */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.material-item .dim-display {
+    background-color: #f1f8ff; 
+    color: var(--primary-color);
+}
+.material-item .weight-display { 
+    background-color: #fff3e0; 
+    font-weight: 600; /* Dibuat sedikit lebih tebal */
+    color: #e65100;
+}
+
+.remove-material-btn {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 24px; /* Dibuat lebih kecil */
+    height: 24px;
+    padding: 0;
+    line-height: 1;
+    font-size: 11px;
+    flex-shrink: 0; /* Pastikan tombol tidak menyusut */
+}
+.remove-material-btn:hover {
+    background-color: #c82333;
+}
+
+/* --- Button Group dan Styling Aksi Utama --- */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; /* Jarak antar tombol dikurangi */
+    margin-top: 15px; /* Margin dikurangi */
+    padding-top: 8px; /* Padding dikurangi */
+    border-top: 1px solid #f0f0f0;
+}
+
+button {
+    padding: 8px 15px; /* Padding tombol dikurangi */
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    font-size: 13px; /* Ukuran font tombol dikurangi */
+    flex-grow: 1;
+    max-width: none; /* Hilangkan max-width agar lebih responsif */
+}
+
+#add-material-btn { background-color: var(--success-color); }
+#visualize-btn { background-color: var(--primary-color); }
+#move-btn { background-color: #ffc107; color: #343a40; }
+#save-btn { background-color: #17a2b8; } 
+
+#add-material-btn:hover { background-color: #218838; }
+#visualize-btn:hover { background-color: #0056b3; }
+#move-btn:hover { background-color: #e0a800; }
+#save-btn:hover { background-color: #138496; }
+
+/* --- Styling Tombol Crane (BARU) --- */
+#crane-btn {
+    background-color: #6c757d; /* secondary-color */
+    color: white;
+    margin-left: 5px; /* Tambahkan sedikit jarak dari tombol lain */
+    flex-grow: 1; 
+}
+
+#crane-btn:hover {
+    background-color: #5a6268;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* --- Styling Impor Database --- */
+#import-section {
+    margin-top: 25px;
+    padding: 15px;
+    border: 2px dashed #adb5bd; 
+    border-radius: var(--border-radius);
+    background-color: #fcfcfc;
+}
+#excel-paste-area {
+    width: 100%;
+    height: 80px; /* Tinggi dikurangi */
+    margin-bottom: 12px;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #adb5bd;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 11px;
+}
+#import-section button {
+    max-width: none;
+}
+
+/* --- Info Kontainer/Status --- */
+#container-info {
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: #e9f5ff; 
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    color: #004085;
+    font-size: 14px; /* Ukuran font dikurangi */
+}
+
+#status-message {
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 15px !important;
+    text-align: center;
+    font-size: 13px;
+}
+.status-box {
+    border: 1px solid transparent;
+}
+
+/* --- Responsivitas Sederhana (JIKA LAYAR KECIL/MOBILE) --- */
+@media (max-width: 1200px) {
+    #main-content {
+        grid-template-columns: 1fr; /* Tumpuk menjadi 1 kolom */
+        padding: 15px;
+    }
+    #input-section, #visualization-section {
+        grid-column: 1 / -1;
+    }
+    #visualization-container {
+        height: 60vh;
+    }
+    .material-item .dim-display, .material-item .weight-display {
+        flex: 0 0 70px; /* Diperkecil lagi saat di mobile */
+    }
+}
