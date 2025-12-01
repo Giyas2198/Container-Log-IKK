@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Container Loading Planner (ROLL Dinamis)</title>
 
   <!-- Fonts & Styles -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
 
   <!-- 3D & Excel Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -48,19 +48,19 @@
         <h3>🚚 Pilih Moda Transportasi</h3>
         <label for="moda-selector" style="font-weight: 600; margin-bottom: 5px; display: block;">Jenis Moda:</label>
         <select id="moda-selector">
-          <option value="40hc">Container 40ft HC (P:12.0m, L:2.4m, T:2.4m)</option>
-          <option value="20ft">Container 20ft (P:6.2m, L:2.4m, T:2.4m)</option>
-          <option value="tronton_lossbak">Tronton Lossbak (P:9.4m, L:2.4m, T: - )</option>
+          <option value="40hc">Container 40ft HC (P:12.032m, L:2.352m, T:2.700m)</option>
+          <option value="20ft">Container 20ft (P:5.898m, L:2.352m, T:2.700m)</option>
+          <option value="tronton_lossbak">Tronton Lossbak (P:9.4m, L:2.4m, T:-)</option>
           <option value="wingbox">Wingbox (P:12.0m, L:2.4m, T:2.4m)</option>
         </select>
         <p class="note">Pilih moda, lalu klik 'Visualisasi Pemuatan 3D' untuk memperbarui kerangka.</p>
       </div>
 
       <div id="import-section">
-        <h4>⬆️ Impor Database Material (Copy-Paste Excel)</h4>
+        <h4>⬆️ Impor Database Material (Copy-Paste Tabel Excel)</h4>
         <p class="note">Tempelkan data (Material ID dan Deskripsi) di bawah. Kolom yang diharapkan:</p>
         <blockquote style="font-style: italic;">Kolom 1: Material ID, Kolom 2: Deskripsi</blockquote>
-        <textarea id="excel-paste-area" placeholder="Tempelkan data Excel (Ctrl+V) di sini..."></textarea>
+        <textarea id="excel-paste-area" placeholder="Tempelkan data Excel (Ctrl+V) di sini..." rows="6"></textarea>
         <button id="import-btn">💾 Upload ke Database Firestore</button>
       </div>
 
@@ -70,49 +70,157 @@
     <section id="visualization-section">
       <h3>Visualisasi Kontainer</h3>
       <div id="container-info">
-        Tipe Moda: <span id="current-moda-display">40ft HC</span> (P: 12.03m | L: 2.35m | T: 2.70m)
+        Tipe Moda: <span id="current-moda-display">40ft HC</span> (P: 12.032m | L: 2.352m | T: 2.700m)
       </div>
-      <div id="visualization-container"></div>
+      <div id="visualization-container" style="width: 100%; height: 420px; background: #0f172a; border-radius: 10px; overflow: hidden;"></div>
     </section>
   </div>
 
-  <!-- App Logic -->
-  <script src="app.js"></script>
+  <!-- App Logic for 3D (placeholder minimal) -->
+  <script>
+    (function initViewer() {
+      const container = document.getElementById('visualization-container');
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0f172a);
 
-  <!-- Firebase Modular SDK -->
+      const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(6, 5, 8);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+
+      // Grid & Light
+      const grid = new THREE.GridHelper(12, 24, 0x2dd4bf, 0x334155);
+      scene.add(grid);
+      const light = new THREE.HemisphereLight(0xffffff, 0x222222, 1.0);
+      scene.add(light);
+
+      // Simple container box (approximate 40HC inner size)
+      const geom = new THREE.BoxGeometry(12.032, 2.352, 2.700);
+      const mat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, wireframe: true });
+      const box = new THREE.Mesh(geom, mat);
+      box.position.set(12.032/2 - 0.1, 2.352/2, 0);
+      scene.add(box);
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Resize
+      window.addEventListener('resize', () => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+
+      // Mode change updates info only (you bisa lanjutkan untuk update geometry)
+      document.getElementById('moda-selector').addEventListener('change', (e) => {
+        const span = document.getElementById('current-moda-display');
+        const val = e.target.value;
+        const text = {
+          '40hc': '40ft HC',
+          '20ft': '20ft',
+          'tronton_lossbak': 'Tronton Lossbak',
+          'wingbox': 'Wingbox'
+        }[val] || '40ft HC';
+        span.textContent = text;
+      });
+    })();
+  </script>
+
+  <!-- Firebase Modular SDK & wiring -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
+    // TODO: Ganti dengan konfigurasi proyek kamu
     const firebaseConfig = {
-      apiKey: "AIzaSyC0t5s8...",
-      authDomain: "giyas-coding.firebaseapp.com",
-      projectId: "giyas-coding",
-      storageBucket: "giyas-coding.appspot.com",
-      messagingSenderId: "3814315892324",
-      appId: "1:3814315892324:web:f51759b37e76705d83971"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
+    // Init
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    console.log("Firebase initialized");
 
+    const statusEl = document.getElementById('status-message');
+    const importBtn = document.getElementById('import-btn');
+    const excelArea = document.getElementById('excel-paste-area');
+
+    // Helper status
+    function setStatus(type, msg) {
+      statusEl.textContent = msg;
+      statusEl.style.color = type === 'error' ? '#ef4444' : '#22c55e';
+    }
+
+    // Upload paste Excel (dua kolom: MaterialID, Deskripsi) ke koleksi "materials"
+    importBtn.addEventListener('click', async () => {
+      const raw = (excelArea.value || '').trim();
+      if (!raw) { setStatus('error', 'Data kosong. Tempelkan tabel Excel terlebih dahulu.'); return; }
+
+      // Parsing sederhana: pisah baris, lalu pisah kolom dengan tab atau koma
+      const rows = raw.split(/\r?\n/).filter(r => r.trim().length > 0);
+      const batch = [];
+      for (const line of rows) {
+        const cols = line.split(/\t|,/);
+        const materialId = (cols[0] || '').trim();
+        const desc = (cols[1] || '').trim();
+        if (!materialId) continue;
+        batch.push({ id: materialId, description: desc });
+      }
+      if (batch.length === 0) { setStatus('error', 'Tidak ada baris valid terdeteksi. Pastikan kolom 1: Material ID, kolom 2: Deskripsi.'); return; }
+
+      try {
+        // Tulis per dokumen menggunakan setDoc
+        const start = performance.now();
+        for (const item of batch) {
+          await setDoc(doc(db, 'materials', item.id), {
+            description: item.description,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        }
+        const ms = Math.round(performance.now() - start);
+        setStatus('ok', `Upload ${batch.length} baris sukses (${ms} ms).`);
+      } catch (err) {
+        console.error(err);
+        // Deteksi error offline dari Firestore
+        const msg = (err && err.message) ? err.message : String(err);
+        setStatus('error', `Gagal upload: ${msg}`);
+      }
+    });
+
+    // Contoh read: ambil satu dokumen (untuk sanity check)
     async function fetchMaterialDetails(materialId) {
       try {
-        const docRef = doc(db, "materials", materialId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          console.log("Material Data:", docSnap.data());
+        const snap = await getDoc(doc(db, 'materials', materialId));
+        if (snap.exists()) {
+          console.log('Material Data:', snap.data());
+          setStatus('ok', `Material ${materialId} ditemukan.`);
         } else {
-          console.error("Dokumen tidak ditemukan");
+          setStatus('error', `Material ${materialId} tidak ditemukan.`);
         }
       } catch (error) {
-        console.error("Gagal mengambil data:", error);
+        console.error(error);
+        setStatus('error', `Gagal mengambil data: ${error.message || error}`);
       }
     }
 
-    // Tes panggil fungsi
-    fetchMaterialDetails("53025076");
+    // Tes panggilan awal (opsional)
+    // fetchMaterialDetails("53025076");
   </script>
 </body>
 </html>
