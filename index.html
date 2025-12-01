@@ -1,85 +1,118 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Container Loading Planner (ROLL Dinamis)</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Container Loading Planner (ROLL Dinamis)</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js"></script>
-    
+  <!-- Fonts & Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- 3D & Excel Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Container Loading Planner (Dinamis)</h1>
-    </header>
+  <header>
+    <h1>Container Loading Planner (Dinamis)</h1>
+  </header>
 
-    <div id="main-content">
-        <section id="input-section">
-            <h3>🛒 Input Daftar Roll Pemuatan:</h3>
-            
-            <div id="material-header" class="material-item header-row">
-                <div style="flex-grow: 1.5;">Material ID</div>
-                <div style="flex-grow: 2.5;">Deskripsi</div>
-                <div style="flex-grow: 0.5; text-align: center;">Jml (Qty)</div>
-                <div style="flex: 0 0 100px; text-align: center;">D x L (m)</div>
-                <div style="flex: 0 0 100px; text-align: center;">Berat (kg/ton)</div>
-                <div style="width: 28px;"></div>
-            </div>
+  <div id="main-content">
+    <section id="input-section">
+      <h3>🛒 Input Daftar Roll Pemuatan:</h3>
 
-            <div id="material-list">
-                </div>
-            
-            <div class="button-group">
-                <button id="add-material-btn">➕ Tambah Roll Baru</button>
-                <button id="visualize-btn">✨ Visualisasi Pemuatan 3D</button>
-                <button id="move-btn" style="display:none;">🖱️ Pindah Roll</button>
-                <button id="save-btn" style="display:none;">✅ Selesai Pindah (Kunci)</button>
-                <button id="crane-btn">🏗️ Pakai Crane</button> 
-            </div>
-            
-            <hr style="margin-top: 25px; margin-bottom: 25px;">
+      <div id="material-header" class="material-item header-row">
+        <div style="flex-grow: 1.5;">Material ID</div>
+        <div style="flex-grow: 2.5;">Deskripsi</div>
+        <div style="flex-grow: 0.5; text-align: center;">Jml (Qty)</div>
+        <div style="flex: 0 0 100px; text-align: center;">D x L (m)</div>
+        <div style="flex: 0 0 100px; text-align: center;">Berat (kg/ton)</div>
+        <div style="width: 28px;"></div>
+      </div>
 
-            <div id="transport-section">
-                <h3>🚚 Pilih Moda Transportasi</h3>
-                <label for="moda-selector" style="font-weight: 600; margin-bottom: 5px; display: block;">Jenis Moda:</label>
-                <select id="moda-selector">
-                    <option value="40hc">Container 40ft HC (P:12.0m, L:2.4m, T:2.4m)</option>
-                    <option value="20ft">Container 20ft (P:6.2m, L:2.4m, T:2.4m)</option>
-                    <option value="tronton_lossbak">Tronton Lossbak (P:9.4m, L:2.4m, T: - )</option>
-                    <option value="wingbox">Wingbox (P:12.0m, L:2.4m, T:2.4m)</option>
-                </select>
-                <p class="note">Pilih moda, lalu klik 'Visualisasi Pemuatan 3D' untuk memperbarui kerangka.</p>
-            </div>
+      <div id="material-list"></div>
 
-            <div id="import-section">
-                <h4>⬆️ Impor Database Material (Copy-Paste Excel)</h4>
-                <p class="note">Tempelkan data (Material ID dan Deskripsi) di bawah. Kolom yang diharapkan:</p>
-                <blockquote style="font-style: italic;">**Kolom 1: Material ID, Kolom 2: Deskripsi**</blockquote>
-                <textarea id="excel-paste-area" placeholder="Tempelkan data Excel (Ctrl+V) di sini..."></textarea>
-                <button id="import-btn">💾 Upload ke Database Firestore</button>
-            </div>
-            
-            <p id="status-message" class="status-box"></p>
-        </section>
-        
-        <section id="visualization-section">
-            <h3>Visualisasi Kontainer</h3>
-            <div id="container-info">
-                Tipe Moda: <span id="current-moda-display">40ft HC</span> (P: 12.03m | L: 2.35m | T: 2.70m)
-            </div>
-            <div id="visualization-container">
-                </div>
-        </section>
+      <div class="button-group">
+        <button id="add-material-btn">➕ Tambah Roll Baru</button>
+        <button id="visualize-btn">✨ Visualisasi Pemuatan 3D</button>
+        <button id="move-btn" style="display:none;">🖱️ Pindah Roll</button>
+        <button id="save-btn" style="display:none;">✅ Selesai Pindah (Kunci)</button>
+        <button id="crane-btn">🏗️ Pakai Crane</button>
+      </div>
 
-        </div>
+      <hr style="margin-top: 25px; margin-bottom: 25px;" />
 
-    <script src="app.js"></script>
+      <div id="transport-section">
+        <h3>🚚 Pilih Moda Transportasi</h3>
+        <label for="moda-selector" style="font-weight: 600; margin-bottom: 5px; display: block;">Jenis Moda:</label>
+        <select id="moda-selector">
+          <option value="40hc">Container 40ft HC (P:12.0m, L:2.4m, T:2.4m)</option>
+          <option value="20ft">Container 20ft (P:6.2m, L:2.4m, T:2.4m)</option>
+          <option value="tronton_lossbak">Tronton Lossbak (P:9.4m, L:2.4m, T: - )</option>
+          <option value="wingbox">Wingbox (P:12.0m, L:2.4m, T:2.4m)</option>
+        </select>
+        <p class="note">Pilih moda, lalu klik 'Visualisasi Pemuatan 3D' untuk memperbarui kerangka.</p>
+      </div>
+
+      <div id="import-section">
+        <h4>⬆️ Impor Database Material (Copy-Paste Excel)</h4>
+        <p class="note">Tempelkan data (Material ID dan Deskripsi) di bawah. Kolom yang diharapkan:</p>
+        <blockquote style="font-style: italic;">Kolom 1: Material ID, Kolom 2: Deskripsi</blockquote>
+        <textarea id="excel-paste-area" placeholder="Tempelkan data Excel (Ctrl+V) di sini..."></textarea>
+        <button id="import-btn">💾 Upload ke Database Firestore</button>
+      </div>
+
+      <p id="status-message" class="status-box"></p>
+    </section>
+
+    <section id="visualization-section">
+      <h3>Visualisasi Kontainer</h3>
+      <div id="container-info">
+        Tipe Moda: <span id="current-moda-display">40ft HC</span> (P: 12.03m | L: 2.35m | T: 2.70m)
+      </div>
+      <div id="visualization-container"></div>
+    </section>
+  </div>
+
+  <!-- App Logic -->
+  <script src="app.js"></script>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0t5s8...",
+      authDomain: "giyas-coding.firebaseapp.com",
+      projectId: "giyas-coding",
+      storageBucket: "giyas-coding.appspot.com",
+      messagingSenderId: "3814315892324",
+      appId: "1:3814315892324:web:f51759b37e76705d83971"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function fetchMaterialDetails(materialId) {
+      try {
+        const docRef = doc(db, "materials", materialId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          console.log("Material Data:", docSnap.data());
+        } else {
+          console.error("Dokumen tidak ditemukan");
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data:", error);
+      }
+    }
+
+    // Tes panggil fungsi
+    fetchMaterialDetails("53025076");
+  </script>
 </body>
 </html>
